@@ -18,7 +18,7 @@ def ddim_sample(ddim_scheduler: DDIMScheduler,
                 guidance_scale: float = 3.0,
                 do_classifier_free_guidance: bool = True,
                 generator: Optional[torch.Generator] = None,
-                device: torch.device = "cuda:0",
+                device: torch.device = "cuda",
                 disable_prog: bool = True):
 
     assert steps > 0, f"{steps} must > 0."

@@ -17,9 +17,9 @@ from diffusers.schedulers import (
     DPMSolverMultistepScheduler
 )
 
-from michelangelo.utils import instantiate_from_config
-from michelangelo.models.tsal.tsal_base import AlignedShapeAsLatentPLModule
-from michelangelo.models.asl_diffusion.inference_utils import ddim_sample
+from external.Michelangelo.michelangelo.utils import instantiate_from_config
+from external.Michelangelo.michelangelo.models.tsal.tsal_base import AlignedShapeAsLatentPLModule
+from external.Michelangelo.michelangelo.models.asl_diffusion.inference_utils import ddim_sample
 
 SchedulerType = Union[DDIMScheduler, KarrasVeScheduler, DPMSolverMultistepScheduler]
 
@@ -368,7 +368,6 @@ class ClipASLDiffuser(pl.LightningModule):
                     latents = sample
                 outputs.append(self.decode_first_stage(latents, **kwargs))
         else:
-
             sample_loop = ddim_sample(
                 self.denoise_scheduler,
                 self.model,

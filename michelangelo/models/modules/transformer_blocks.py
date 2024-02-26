@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional
 
-from michelangelo.models.modules.checkpoint import checkpoint
+from external.Michelangelo.michelangelo.models.modules.checkpoint import checkpoint
 
 
 def init_linear(l, stddev):

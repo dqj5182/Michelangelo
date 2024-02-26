@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 from typing import Optional
 
-from michelangelo.models.modules.checkpoint import checkpoint
-from michelangelo.models.modules.transformer_blocks import (
+from external.Michelangelo.michelangelo.models.modules.checkpoint import checkpoint
+from external.Michelangelo.michelangelo.models.modules.transformer_blocks import (
     init_linear,
     MLP,
     MultiheadCrossAttention,
