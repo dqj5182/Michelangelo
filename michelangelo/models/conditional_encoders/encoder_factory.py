@@ -65,7 +65,7 @@ class FrozenCLIPImageGridEmbedder(AbstractEncoder):
         if self._move_flag:
             return
 
-        self.clip_dict[self.clip_name] = self.clip_dict[self.clip_name].to(self.device)
+        self.clip_dict[self.clip_name] = self.clip_dict[self.clip_name] #.to(self.device)
         self._move_flag = True
 
     def unconditional_embedding(self, batch_size):
@@ -86,12 +86,16 @@ class FrozenCLIPImageGridEmbedder(AbstractEncoder):
             low, high = value_range
             image = (image - low) / (high - low)
 
-        image = image.to(self.device, dtype=self.clip.visual_projection.weight.dtype)
+        image = image.to(self.clip.device, dtype=self.clip.visual_projection.weight.dtype)
         end = time.time()
         print('Image processing:', str(end-start))
 
         start = time.time()
-        z = self.clip.vision_model(self.transform(image)).last_hidden_state
+        self.clip = self.clip
+        try:
+            z = self.clip.vision_model(self.transform(image).to(self.clip.device)).last_hidden_state
+        except:
+            import pdb; pdb.set_trace()
         end = time.time()
         print('CLIP vision model:', str(end-start))
 
