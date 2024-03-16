@@ -162,7 +162,6 @@ class ClipASLDiffuser(pl.LightningModule):
 
     @torch.no_grad()
     def decode_first_stage(self, z_q: torch.FloatTensor, **kwargs):
-
         z_q = 1. / self.z_scale_factor * z_q
         latents = self.first_stage_model.decode(z_q, **kwargs)
         return latents
@@ -352,27 +351,27 @@ class ClipASLDiffuser(pl.LightningModule):
         outputs = []
         latents = None
 
-        for _ in range(sample_times):
-            start = time.time()
-            sample_loop = ddim_sample(
-                self.denoise_scheduler,
-                self.model,
-                shape=self.first_stage_model.latent_shape,
-                cond=cond,
-                steps=steps,
-                guidance_scale=guidance_scale,
-                do_classifier_free_guidance=do_classifier_free_guidance,
-                device=self.device,
-                eta=eta,
-                disable_prog=not True # self.zero_rank
-            )
-            end = time.time()
-            print('Initialize DDIM sampling:', str(end-start))
-            start = time.time()
-            for sample, t in sample_loop:
-                latents = sample
-            outputs.append(self.decode_first_stage(latents, **kwargs))
-            end = time.time()
-            print('Do DDIM sampling:', str(end-start))
+        # DDIM sampling
+        start = time.time()
+        latents = ddim_sample(
+            self.denoise_scheduler,
+            self.model,
+            shape=self.first_stage_model.latent_shape,
+            cond=cond,
+            steps=steps,
+            guidance_scale=guidance_scale,
+            do_classifier_free_guidance=do_classifier_free_guidance,
+            device=self.device,
+            eta=eta,
+            disable_prog=not True # self.zero_rank
+        )
+        end = time.time()
+        print('Initialize DDIM sampling:', str(end-start))
+        start = time.time()
+        # for sample, sample_t in sample_loop:
+        #     latents = sample
+        outputs.append(self.decode_first_stage(latents[-2], **kwargs))
+        end = time.time()
+        print('Do DDIM sampling:', str(end-start))
 
         return outputs

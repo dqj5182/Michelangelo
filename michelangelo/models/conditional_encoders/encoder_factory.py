@@ -39,7 +39,7 @@ class FrozenCLIPImageGridEmbedder(AbstractEncoder):
         clip_model = clip_model.eval()
         for param in self.parameters():
             param.requires_grad = False
-        self.clip_dict[self.clip_name] = clip_model
+        self.clip_dict[self.clip_name] = clip_model.to(self.device)
 
         self.transform = transforms.Compose(
             [
@@ -54,7 +54,7 @@ class FrozenCLIPImageGridEmbedder(AbstractEncoder):
         self.zero_embedding_radio = zero_embedding_radio
         self.embedding_dim = clip_model.vision_embed_dim
 
-        self._move_flag = False
+        self._move_flag = True
 
     @property
     def clip(self):
@@ -80,10 +80,6 @@ class FrozenCLIPImageGridEmbedder(AbstractEncoder):
 
     def forward(self, image, value_range=(-1, 1), zero_embedding_radio=0):
         import time
-        start = time.time()
-        self.move()
-        end = time.time()
-        print('Move:', str(end-start))
 
         start = time.time()
         if value_range is not None:

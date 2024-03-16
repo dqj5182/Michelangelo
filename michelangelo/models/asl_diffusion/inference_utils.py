@@ -71,8 +71,9 @@ def ddim_sample(ddim_scheduler: DDIMScheduler,
             noise_pred, t, latents, **extra_step_kwargs
         ).prev_sample
 
-        yield latents, t
+        # yield latents, t
 
+    return latents, t
 
 def karra_sample():
     pass
