@@ -18,6 +18,7 @@ class Latent2MeshOutput(object):
     def __init__(self):
         self.mesh_v = None
         self.mesh_f = None
+        self.occp = None
 
 
 class AlignedMeshOutput(object):

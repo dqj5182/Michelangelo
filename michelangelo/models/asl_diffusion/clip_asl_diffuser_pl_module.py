@@ -336,12 +336,14 @@ class ClipASLDiffuser(pl.LightningModule):
             guidance_scale = self.scheduler_cfg.guidance_scale
         do_classifier_free_guidance = guidance_scale > 0
 
+        import time
+        start = time.time()
         # conditional encode
         xc = batch[self.cond_stage_key]
 
-        # print(self.first_stage_model.device, self.cond_stage_model.device, self.device)
-
         cond = self.cond_stage_model(xc)
+        end = time.time()
+        print('Condifional encoding:', str(end-start))
 
         if do_classifier_free_guidance:
             un_cond = self.cond_stage_model.unconditional_embedding(batch_size=len(xc))
@@ -350,24 +352,8 @@ class ClipASLDiffuser(pl.LightningModule):
         outputs = []
         latents = None
 
-        if not return_intermediates:
-            for _ in range(sample_times):
-                sample_loop = ddim_sample(
-                    self.denoise_scheduler,
-                    self.model,
-                    shape=self.first_stage_model.latent_shape,
-                    cond=cond,
-                    steps=steps,
-                    guidance_scale=guidance_scale,
-                    do_classifier_free_guidance=do_classifier_free_guidance,
-                    device=self.device,
-                    eta=eta,
-                    disable_prog=not self.zero_rank
-                )
-                for sample, t in sample_loop:
-                    latents = sample
-                outputs.append(self.decode_first_stage(latents, **kwargs))
-        else:
+        for _ in range(sample_times):
+            start = time.time()
             sample_loop = ddim_sample(
                 self.denoise_scheduler,
                 self.model,
@@ -378,15 +364,15 @@ class ClipASLDiffuser(pl.LightningModule):
                 do_classifier_free_guidance=do_classifier_free_guidance,
                 device=self.device,
                 eta=eta,
-                disable_prog=not self.zero_rank
+                disable_prog=not True # self.zero_rank
             )
-
-            iter_size = steps // sample_times
-            i = 0
+            end = time.time()
+            print('Initialize DDIM sampling:', str(end-start))
+            start = time.time()
             for sample, t in sample_loop:
                 latents = sample
-                if i % iter_size == 0 or i == steps - 1:
-                    outputs.append(self.decode_first_stage(latents, **kwargs))
-                i += 1
+            outputs.append(self.decode_first_stage(latents, **kwargs))
+            end = time.time()
+            print('Do DDIM sampling:', str(end-start))
 
         return outputs

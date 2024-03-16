@@ -49,8 +49,8 @@ def extract_geometry(geometric_func: Callable,
     xyz_samples = torch.FloatTensor(xyz_samples)
 
     batch_logits = []
-    for start in tqdm(range(0, xyz_samples.shape[0], num_chunks),
-                      desc="Implicit Function:", disable=disable, leave=False):
+
+    for start in range(0, xyz_samples.shape[0], num_chunks):
         queries = xyz_samples[start: start + num_chunks, :].to(device)
         batch_queries = repeat(queries, "p c -> b p c", b=batch_size)
 
@@ -61,20 +61,5 @@ def extract_geometry(geometric_func: Callable,
 
     mesh_v_f = []
     has_surface = np.zeros((batch_size,), dtype=np.bool_)
-    for i in range(batch_size):
-        try:
-            vertices, faces, normals, _ = measure.marching_cubes(grid_logits[i], 0, method="lewiner")
-            vertices = vertices / grid_size * bbox_size + bbox_min
-            # vertices[:, [0, 1]] = vertices[:, [1, 0]]
-            mesh_v_f.append((vertices.astype(np.float32), np.ascontiguousarray(faces)))
-            has_surface[i] = True
 
-        except ValueError:
-            mesh_v_f.append((None, None))
-            has_surface[i] = False
-
-        except RuntimeError:
-            mesh_v_f.append((None, None))
-            has_surface[i] = False
-
-    return mesh_v_f, has_surface
+    return grid_logits, bbox_size, bbox_min, grid_size

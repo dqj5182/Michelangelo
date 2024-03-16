@@ -47,7 +47,8 @@ def ddim_sample(ddim_scheduler: DDIMScheduler,
     }
 
     # reverse
-    for i, t in enumerate(tqdm(timesteps, disable=disable_prog, desc="DDIM Sampling:", leave=False)):
+    # for i, t in enumerate(tqdm(timesteps, disable=disable_prog, desc="DDIM Sampling:", leave=False)):
+    for i, t in enumerate(timesteps):
         # expand the latents if we are doing classifier free guidance
         latent_model_input = (
             torch.cat([latents] * 2)
@@ -66,9 +67,6 @@ def ddim_sample(ddim_scheduler: DDIMScheduler,
             noise_pred = noise_pred_uncond + guidance_scale * (
                     noise_pred_text - noise_pred_uncond
             )
-            # text_embeddings_for_guidance = encoder_hidden_states.chunk(
-            #     2)[1] if do_classifier_free_guidance else encoder_hidden_states
-        # compute the previous noisy sample x_t -> x_t-1
         latents = ddim_scheduler.step(
             noise_pred, t, latents, **extra_step_kwargs
         ).prev_sample

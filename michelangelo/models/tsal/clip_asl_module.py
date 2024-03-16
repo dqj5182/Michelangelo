@@ -84,17 +84,6 @@ class CLIPAlignedShapeAsLatentModule(AlignedShapeAsLatentModule):
                 - logit_scale (float):
         """
 
-        # # text embedding
-        # text_embed_all = []
-        # for i in range(text.shape[0]):
-        #     text_for_one_sample = text[i]
-        #     text_embed = self.encode_text_embed(text_for_one_sample)
-        #     text_embed = text_embed / text_embed.norm(dim=-1, keepdim=True)
-        #     text_embed = text_embed.mean(dim=0)
-        #     text_embed = text_embed / text_embed.norm(dim=-1, keepdim=True)
-        #     text_embed_all.append(text_embed)
-        # text_embed_all = torch.stack(text_embed_all)
-
         b = text.shape[0]
         text_tokens = rearrange(text, "b t l -> (b t) l")
         text_embed = self.encode_text_embed(text_tokens)

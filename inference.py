@@ -39,6 +39,18 @@ def save_output(args, mesh_outputs):
 
     return 0
 
+def process_output(mesh_outputs):
+    final_mesh_output = []
+    final_occp_output = []
+    for i, mesh in enumerate(mesh_outputs):
+        mesh.mesh_f = mesh.mesh_f[:, ::-1]
+        mesh_output = trimesh.Trimesh(mesh.mesh_v, mesh.mesh_f)  
+        occp_output = mesh.occp
+        final_mesh_output.append(mesh_output) 
+        final_occp_output.append(occp_output)
+
+    return final_mesh_output, final_occp_output
+
 def image2mesh(args, model, guidance_scale=7.5, box_v=1.1, octree_depth=7):
 
     sample_inputs = {
@@ -57,32 +69,3 @@ def image2mesh(args, model, guidance_scale=7.5, box_v=1.1, octree_depth=7):
     save_output(args, mesh_outputs)
     
     return 0
-
-task_dick = {
-    'image2mesh': image2mesh,
-}
-
-if __name__ == "__main__":
-    '''
-    1. Reconstruct point cloud
-    2. Image-conditioned generation
-    3. Text-conditioned generation
-    '''
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--task", type=str, default='image2mesh')
-    parser.add_argument("--config_path", type=str, default='configs/image_cond_diffuser_asl/image-ASLDM-256.yaml')
-    parser.add_argument("--ckpt_path", type=str, default='checkpoints/image_cond_diffuser_asl/image-ASLDM-256.ckpt')
-    parser.add_argument("--image_path", type=str, default='example_data/image/car.jpg')
-    parser.add_argument("--output_dir", type=str, default='./output')
-    parser.add_argument("-s", "--seed", type=int, default=0)
-    args = parser.parse_args()
-    
-    pl.seed_everything(args.seed)
-
-    print(f'-----------------------------------------------------------------------------')
-    print(f'>>> Running {args.task}')
-    args.output_dir = os.path.join(args.output_dir, args.task)
-    print(f'>>> Output directory: {args.output_dir}')
-    print(f'-----------------------------------------------------------------------------')
-    
-    task_dick[args.task](args, load_model())
